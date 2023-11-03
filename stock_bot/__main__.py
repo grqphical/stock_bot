@@ -1,12 +1,16 @@
-from .scraper import *
+from .fetcher import Stock
 from .embeds import *
 from .watchlist import *
+from .news import *
+from .prices import *
 import discord
 from discord import app_commands
 from dotenv import load_dotenv
 import os
 import logging
 import colorama
+import io
+from PIL import Image
 
 load_dotenv()
 
@@ -33,8 +37,10 @@ async def on_ready():
 @app_commands.describe(symbol="Stock to lookup")
 async def get_stock(interaction: discord.Interaction, symbol: str):
     stock = Stock(symbol)
-    if stock.price is None:
-        await interaction.response.send_message(f"Stock not found")
+    if stock.not_found:
+        await interaction.response.send_message(embed=error_embed("Stock Not Found", f"Stock with symbol '{symbol}' not found. \
+                                                                  Try putting the exchange after the stock if it's a foreign stock. \
+                                                                  For example AC on the TSX would be AC.TO"))
         return
 
     await interaction.response.send_message(embed=stock_embed(stock))
@@ -43,19 +49,45 @@ async def get_stock(interaction: discord.Interaction, symbol: str):
 @app_commands.describe(symbol="Stock to add")
 async def get_stock(interaction: discord.Interaction, symbol: str):
     stock = Stock(symbol)
-    if stock.price is None:
-        await interaction.response.send_message(f"Stock not found")
+    if stock.not_found:
+        await interaction.response.send_message(embed=error_embed("Stock Not Found", f"Stock with symbol '{symbol}' not found. \
+                                                                  Try putting the exchange after the stock if it's a foreign stock. \
+                                                                  For example AC on the TSX would be AC.TO"))
         return
 
     error = watchlists.add_to_list(stock.symbol, interaction.guild_id)
     if error != None:
-        await interaction.response.send_message(error.message)
+        await interaction.response.send_message(embed=error_embed("Error adding to watchlist", error.message))
     watchlists.save()
 
-    await interaction.response.send_message("Added to watchlist")
+    await interaction.response.send_message(embed=info_embed("Added", f"Added '{symbol}' to watchlist"))
+
+@tree.command(name="removefromwatchlist", description="Remove a stock from the watchlist", guild=discord.Object(id=1061783393718784020))
+@app_commands.describe(symbol="Stock to remove")
+async def get_stock(interaction: discord.Interaction, symbol: str):
+    if symbol not in watchlists.lists[str(interaction.guild_id)]:
+        await interaction.response.send_message(embed=error_embed("Watchlist Removal Error", f"{symbol} not in watchlist"))
+        return
+    
+    watchlists.remove_from_list(symbol, interaction.guild_id)
+    await interaction.response.send_message(embed=info_embed("Removed", f"{symbol} Removed from watchlist"))
+
+@tree.command(name="news", description="Gets news stories for a certain stock", guild=discord.Object(id=1061783393718784020))
+@app_commands.describe(symbol="Stock to get news for")
+async def get_news(interaction: discord.Interaction, symbol: str):
+    news = News(symbol)
+
+    await interaction.response.send_message(embed=news_embed(news))
+
+@tree.command(name="chart", description="Shows a chart of the daily history of a stock", guild=discord.Object(id=1061783393718784020))
+@app_commands.describe(symbol="Stock to get chart for")
+async def get_chart(interacton: discord.Interaction, symbol: str):
+    await interacton.response.defer()
+    img = get_chart_img(symbol)
+    await interacton.followup.send(file=discord.File(fp=img, filename='chart.png'), embed=chart_embed(symbol), ephemeral=True)
 
 @tree.command(name="watchlist", description="Gets the current watchlist", guild=discord.Object(id=1061783393718784020))
-async def get_stock(interaction: discord.Interaction):
+async def watchlist(interaction: discord.Interaction):
     embed = watchlist_embed(watchlists.lists.get(str(interaction.guild_id), []))
     await interaction.response.send_message(embed=embed)
 

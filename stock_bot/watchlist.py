@@ -39,7 +39,7 @@ class Watchlists:
         self.lists[str(id)].append(symbol)
         return None
     
-    def remove_from_list(self, symbol: str):
+    def remove_from_list(self, symbol: str, id: int):
         self.lists[str(id)].remove(symbol)
     
     def save(self):
