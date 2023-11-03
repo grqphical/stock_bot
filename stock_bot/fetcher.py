@@ -34,7 +34,7 @@ class Stock:
     @property
     def point_change(self):
         if self._point_change < 0:
-            return f"-{self._point_change:.2f}"
+            return f"{self._point_change:.2f}"
         else:
             return f"+{self._point_change:.2f}"
         

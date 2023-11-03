@@ -9,8 +9,6 @@ from dotenv import load_dotenv
 import os
 import logging
 import colorama
-import io
-from PIL import Image
 
 load_dotenv()
 
@@ -32,6 +30,7 @@ watchlists = Watchlists()
 async def on_ready():
     await tree.sync(guild=discord.Object(id=1061783393718784020))
     logger.info(f"Logged in as {client.user}")
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="The Markets 📈"))
 
 @tree.command(name="stock", description="Gets stats for a given stock", guild=discord.Object(id=1061783393718784020))
 @app_commands.describe(symbol="Stock to lookup")
@@ -88,7 +87,11 @@ async def get_chart(interacton: discord.Interaction, symbol: str):
 
 @tree.command(name="watchlist", description="Gets the current watchlist", guild=discord.Object(id=1061783393718784020))
 async def watchlist(interaction: discord.Interaction):
-    embed = watchlist_embed(watchlists.lists.get(str(interaction.guild_id), []))
-    await interaction.response.send_message(embed=embed)
+    current_watchlist = watchlists.lists[str(interaction.guild_id)]
+    if len(current_watchlist) <= 8:
+        await interaction.response.send_message(embed=watchlist_embed(current_watchlist, 1))
+    else:
+        view = WatchlistView(watchlists, interaction.guild_id)
+        await interaction.response.send_message(embed=await view.get_current_page(), view=view)
 
 client.run(os.getenv("TOKEN"), log_handler=None)

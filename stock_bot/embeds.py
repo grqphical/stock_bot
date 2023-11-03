@@ -13,8 +13,8 @@ def stock_embed(stock: Stock) -> discord.Embed:
 
     return embed
 
-def watchlist_embed(watchlist: list) -> discord.Embed:
-    embed = discord.Embed(title=f"Watchlist", color=discord.Color.blue())
+def watchlist_embed(watchlist: list, page: int) -> discord.Embed:
+    embed = discord.Embed(title=f"Watchlist Page {page}", color=discord.Color.blue())
     for symbol in watchlist:
         stock = Stock(symbol)
         embed.add_field(name=f"**{symbol}:** Price", value=f"```fix\n${stock.price}```")
