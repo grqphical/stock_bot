@@ -2,7 +2,7 @@ import requests
 import urllib
 
 class Stock:
-    """Represents a stock gathered from Yahoo Finance. If the symbol given doesn't exist it simply returns None
+    """Represents a stock gathered from Yahoo Finance. If the symbol given doesn't exist it sets a value of exists to False
 
     Args:
         symbol (str): Stock symbol to get data from
@@ -11,7 +11,8 @@ class Stock:
         info = Ticker(symbol).info
 
         if info == None:
-            return None
+            self.exists = False
+            return
 
         self.symbol = symbol
         self.price = info["currentPrice"]
@@ -20,6 +21,8 @@ class Stock:
         self._point_change = self.price - self.last_close
         self.currency = info["currency"]
         self._percent_change = (self._point_change / self.price) * 100
+
+        self.exists = True
     
     """Retuns the percent change as a formatted string."""
     @property

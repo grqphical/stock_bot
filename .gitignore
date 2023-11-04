@@ -161,3 +161,4 @@ cython_debug/
 
 watchlists.json
 logs
+.vscode

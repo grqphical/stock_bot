@@ -37,7 +37,7 @@ Args:
 @app_commands.describe(symbol="Stock to lookup")
 async def get_stock(interaction: discord.Interaction, symbol: str):
     stock = Stock(symbol)
-    if stock == None:
+    if not stock.exists:
         await interaction.response.send_message(embed=error_embed("Stock Not Found", f"Stock with symbol '{symbol}' not found. \
                                                                   Try putting the exchange after the stock if it's a foreign stock. \
                                                                   For example AC on the TSX would be AC.TO"))
@@ -54,7 +54,7 @@ Args:
 @app_commands.describe(symbol="Stock to add")
 async def get_stock(interaction: discord.Interaction, symbol: str):
     stock = Stock(symbol)
-    if stock == None:
+    if not stock.exists:
         await interaction.response.send_message(embed=error_embed("Stock Not Found", f"Stock with symbol '{symbol}' not found. \
                                                                   Try putting the exchange after the stock if it's a foreign stock. \
                                                                   For example AC on the TSX would be AC.TO"))
