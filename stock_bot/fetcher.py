@@ -2,17 +2,16 @@ import requests
 import urllib
 
 class Stock:
-    """Creates a new stock object
-    
-    :param symbol: the stock symbol to gather data from
-    :type symbol: str
+    """Represents a stock gathered from Yahoo Finance. If the symbol given doesn't exist it simply returns None
+
+    Args:
+        symbol (str): Stock symbol to get data from
     """
-    def __init__(self, symbol) -> None:
+    def __init__(self, symbol: str):
         info = Ticker(symbol).info
 
         if info == None:
-            self.not_found = True
-            return
+            return None
 
         self.symbol = symbol
         self.price = info["currentPrice"]
@@ -21,16 +20,16 @@ class Stock:
         self._point_change = self.price - self.last_close
         self.currency = info["currency"]
         self._percent_change = (self._point_change / self.price) * 100
-
-        self.not_found = False
     
+    """Retuns the percent change as a formatted string."""
     @property
     def percent_change(self):
         if self._percent_change < 0:
-            return f"-{self._percent_change:.2f} %"
+            return f"{self._percent_change:.2f} %"
         else:
             return f"+{self._percent_change:.2f} %"
     
+    """Retuns the point change as a formatted string."""
     @property
     def point_change(self):
         if self._point_change < 0:
@@ -38,7 +37,11 @@ class Stock:
         else:
             return f"+{self._point_change:.2f}"
         
+"""This class is used as a workaround to a bug within the yfinance library. As of 04/11/2023, you cannot get the info about a stock as the Yahoo API seems to have moved locations
+so this workaround uses a different endpoint to get the information
 
+Source: https://github.com/ranaroussi/yfinance/issues/1729#issuecomment-1790830481
+"""
 class Ticker:
     user_agent_key = "User-Agent"
     user_agent_value = ("Mozilla/5.0 (Windows NT 6.1; Win64; x64) "
