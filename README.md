@@ -1,6 +1,6 @@
 # stock_bot
 
-A simple stock tracking bot tahta llows you to view individual stocks, look at charts of a stock's performance, look at news about a certain stock and, set up a server wide watchlist
+A simple stock tracking bot that allows you to view individual stocks, look at charts of a stock's performance, look at news about a certain stock and, set up a server wide watchlist
 
 ## Usage
 
