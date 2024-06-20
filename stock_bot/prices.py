@@ -10,7 +10,7 @@ import io
 import datetime
 
 """Formats a float as a dollar value. Example: 8.6512753 => $8.65"""
-def dollar_format(x: float) -> str:
+def dollar_format(x: float, pos) -> str:
     return "${:.2f}".format(x)
 
 """Charts a stock and returns a bytes buffer of the image data

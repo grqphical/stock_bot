@@ -1,10 +1,14 @@
 import logging
+import os
 from logging.handlers import TimedRotatingFileHandler
 
 """Creates/gets a logger and changes it so it shows all logs at the info level and formats it nicely"""
 def setup_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
+    if not os.path.exists("logs"):
+        os.mkdir("logs")
+
     handler =TimedRotatingFileHandler(
         filename="logs/discord.log",
         encoding="utf-8",
